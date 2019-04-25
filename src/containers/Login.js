@@ -1,7 +1,8 @@
 // eslint-disable-next-line
 import React, { Component } from "react";
-import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import { Auth } from "aws-amplify";
+import LoaderButton from "../components/LoaderBtn";
 
 /** @jsx jsx */
 import { jsx, css } from "@emotion/core";
@@ -10,7 +11,8 @@ import { jsx, css } from "@emotion/core";
 class Login extends Component {
   state = {
     email: "",
-    password: ""
+    password: "",
+    isLoading: false
   };
 
   validateForm() {
@@ -25,6 +27,7 @@ class Login extends Component {
 
   handleSubmit = async event => {
     event.preventDefault();
+    this.setState({ isLoading: true });
 
     try {
       await Auth.signIn(this.state.email, this.state.password);
@@ -32,6 +35,7 @@ class Login extends Component {
       this.props.history.push("/");
     } catch (e) {
       console.log(e.message);
+      this.setState({ isLoading: false });
     }
   };
 
@@ -57,14 +61,15 @@ class Login extends Component {
               type="password"
             />
           </FormGroup>
-          <Button
+          <LoaderButton
             block
             bsSize="large"
             disabled={!this.validateForm()}
             type="submit"
-          >
-            Login
-          </Button>
+            isLoading={this.state.isLoading}
+            text="Login"
+            loadingText="Logging in…"
+          />
         </form>
       </div>
     );
