@@ -1,46 +1,85 @@
 // eslint-disable-next-line
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { LinkContainer } from "react-router-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import Routes from "./Routes";
 import { Navbar, Nav, NavItem } from "react-bootstrap";
+import { Auth } from "aws-amplify";
 
 /** @jsx jsx */
 import { jsx, css } from "@emotion/core";
 // import styled from "@emotion/styled";
 
 class App extends Component {
-  render() {
-    return (
-      <React.Fragment>
-        <Navbar fluid collapseOnSelect>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <span css={navbar}>
-                <Link to="/">Otter notes</Link>
-              </span>
-            </Navbar.Brand>
-            <Navbar.Toggle />
-          </Navbar.Header>
-          <Navbar.Collapse>
-            <Nav pullRight>
-              <LinkContainer to="/signup">
-                <NavItem>Signup</NavItem>
-              </LinkContainer>
-              <LinkContainer to="/login">
-                <NavItem>Login</NavItem>
-              </LinkContainer>
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
+  state = {
+    isAuthenticated: false,
+    isAuthenticating: true
+  };
 
-        <Routes />
-      </React.Fragment>
+  async componentDidMount() {
+    try {
+      await Auth.currentSession();
+      this.userHasAuthenticated(true);
+    } catch (e) {
+      if (e !== "No current user") {
+        console.log(e);
+      }
+    }
+    this.setState({ isAuthenticating: false });
+  }
+
+  userHasAuthenticated = authenticated => {
+    this.setState({ isAuthenticated: authenticated });
+  };
+
+  handleLogout = async event => {
+    await Auth.signOut();
+    this.userHasAuthenticated(false);
+    this.props.history.push("/login");
+  };
+  render() {
+    const childProps = {
+      isAuthenticated: this.state.isAuthenticated,
+      userHasAuthenticated: this.userHasAuthenticated
+    };
+    return (
+      !this.state.isAuthenticating && (
+        <React.Fragment>
+          <Navbar fluid collapseOnSelect>
+            <Navbar.Header>
+              <Navbar.Brand>
+                <span css={navbar}>
+                  <Link to="/">Otter notes</Link>
+                </span>
+              </Navbar.Brand>
+              <Navbar.Toggle />
+            </Navbar.Header>
+            <Navbar.Collapse>
+              <Nav pullRight>
+                {this.state.isAuthenticated ? (
+                  <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                ) : (
+                  <Fragment>
+                    <LinkContainer to="/signup">
+                      <NavItem>Signup</NavItem>
+                    </LinkContainer>
+                    <LinkContainer to="/login">
+                      <NavItem>Login</NavItem>
+                    </LinkContainer>
+                  </Fragment>
+                )}
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+
+          <Routes childProps={childProps} />
+        </React.Fragment>
+      )
     );
   }
 }
 
-export default App;
+export default withRouter(App);
 
 const navbar = css`
   margin: 10px;
