@@ -41,22 +41,6 @@ class Signup extends Component {
     });
   };
 
-  // handleSubmit = async event => {
-  //   event.preventDefault();
-
-  //   this.setState({ isLoading: true });
-
-  //   this.setState({ newUser: "test" });
-
-  //   this.setState({ isLoading: false });
-  // };
-
-  // handleConfirmationSubmit = async event => {
-  //   event.preventDefault();
-
-  //   this.setState({ isLoading: true });
-  // };
-
   handleSubmit = async event => {
     event.preventDefault();
 
