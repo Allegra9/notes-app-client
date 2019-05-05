@@ -6,6 +6,7 @@ import Login from "./containers/Login";
 import Signup from "./containers/Signup";
 import AppliedRoute from "./components/AppliedRoute";
 import NewNote from "./containers/NewNote";
+import Note from "./containers/Note";
 
 export default ({ childProps }) => (
   <Switch>
@@ -18,6 +19,7 @@ export default ({ childProps }) => (
       component={NewNote}
       props={childProps}
     />
+    <AppliedRoute path="/notes/:id" exact component={Note} props={childProps} />
 
     {/* Finally, catch all unmatched routes */}
     <Route component={NotFound} />
